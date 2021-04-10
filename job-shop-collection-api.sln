@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "job-shop-collection-api", "job-shop-collection-api\job-shop-collection-api.csproj", "{7D426F5B-0C9E-4CDA-9C6F-D5B57549378B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "job-shop-collection-api.Data", "job-shop-collection-api.Data\job-shop-collection-api.Data.csproj", "{7497D8FB-62E7-4E3F-A8EE-202CC8BF7E05}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D426F5B-0C9E-4CDA-9C6F-D5B57549378B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D426F5B-0C9E-4CDA-9C6F-D5B57549378B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D426F5B-0C9E-4CDA-9C6F-D5B57549378B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D426F5B-0C9E-4CDA-9C6F-D5B57549378B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7497D8FB-62E7-4E3F-A8EE-202CC8BF7E05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7497D8FB-62E7-4E3F-A8EE-202CC8BF7E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7497D8FB-62E7-4E3F-A8EE-202CC8BF7E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7497D8FB-62E7-4E3F-A8EE-202CC8BF7E05}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {65863DC4-5157-4CE0-A927-8E435A40A8DA}
+	EndGlobalSection
+EndGlobal
