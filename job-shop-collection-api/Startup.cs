@@ -50,6 +50,7 @@ namespace job_shop_collection_api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(builder => builder.AllowAnyOrigin());
             }
 
             app.UseHttpsRedirection();
