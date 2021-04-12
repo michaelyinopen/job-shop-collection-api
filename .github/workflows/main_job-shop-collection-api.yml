@@ -21,11 +21,14 @@ jobs:
       with:
         dotnet-version: '3.1.301'
 
+    - name: Install dependencies
+      run: dotnet restore Project.sln
+      
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: dotnet build --configuration Release --no-restore
 
     - name: dotnet publish
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
