@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/job-shop-collection/databases/job-shop-collection",
+      "type": "mssql.azure",
+      "connectionId": "JobShopCollectionConnectionString",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}
