@@ -5,8 +5,9 @@ name: Build and deploy ASP.Net Core app to Azure Web App - job-shop-collection-a
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
