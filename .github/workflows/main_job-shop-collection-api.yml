@@ -32,6 +32,12 @@ jobs:
     - name: dotnet publish
       run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp
 
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v2
+      with:
+        name: .net-app
+        path: ${{env.DOTNET_ROOT}}/myapp
+
     - name: Login to Azure
       uses: Azure/login@v1
       with:
@@ -41,16 +47,10 @@ jobs:
       run: |
         dotnet tool install --global dotnet-ef
         dotnet tool restore --project job-shop-collection-api
-        dotnet ef database update --configuration Release --no-build --p job-shop-collection-api.Data --s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+        dotnet ef database update --configuration Release --no-build -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
 
     - name: Logout of Azure
       run: az logout
-
-    - name: Upload artifact for deployment job
-      uses: actions/upload-artifact@v2
-      with:
-        name: .net-app
-        path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: windows-latest
