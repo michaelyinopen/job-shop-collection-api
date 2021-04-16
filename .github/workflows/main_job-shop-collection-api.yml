@@ -11,7 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_update_database:
+    name: Build and Update Database
     runs-on: windows-latest
 
     steps:
@@ -31,6 +32,20 @@ jobs:
     - name: dotnet publish
       run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp
 
+    - name: Login to Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_DATABASE_PUBLISHER }}
+
+    - name: dotnet ef database update
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet tool restore
+        dotnet ef database update --configuration Release --no-build --p job-shop-collection-api.Data --s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+
+    - name: Logout of Azure
+      run: az logout
+
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
       with:
@@ -39,7 +54,7 @@ jobs:
 
   deploy:
     runs-on: windows-latest
-    needs: build
+    needs: build_and_update_database
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
