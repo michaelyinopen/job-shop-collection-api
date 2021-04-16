@@ -29,7 +29,7 @@ jobs:
     - name: Build with dotnet
       run: dotnet build --configuration Release --no-restore
 
-    - name: dotnet publish
+    - name: Publish with dotnet
       run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp
 
     - name: Upload artifact for deployment job
@@ -50,10 +50,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS_DATABASE_PUBLISHER }}
 
-    - name: dotnet ef database update
-      run: |
-        dotnet tool install --global dotnet-ef
-        dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+    - name: Install dotnet-ef
+      run: dotnet tool install --global dotnet-ef
+
+    - name: Run dotnet ef database update
+      run: dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
 
     - name: Logout of Azure
       if: always() && steps.outcome == success
