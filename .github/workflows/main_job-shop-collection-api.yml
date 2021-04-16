@@ -11,9 +11,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
+  build_and_update_database:
+    name: Build and Update Database
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
     - uses: actions/checkout@v2
@@ -37,16 +40,9 @@ jobs:
       with:
         name: .net-app
         path: ${{env.DOTNET_ROOT}}/myapp
-        
-  update_database:
-    name: Update Database
-    runs-on: windows-latest
-    needs: [build]
-    
-    steps:
-    - uses: actions/checkout@v2
     
     - name: Login to Azure
+      id: login_azure
       uses: Azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS_DATABASE_PUBLISHER }}
@@ -55,17 +51,21 @@ jobs:
       run: dotnet tool install --global dotnet-ef
 
     - name: Run dotnet ef database update
-      run: dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-
+      run: |
+        $Env:ConnectionStrings__JobShopCollectionConnectionString = "${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+        dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api
+      env:
+          REACT_APP_API_URL: "https://job-shop-collection-api.azurewebsites.net"
+        
     - name: Logout of Azure
-      if: ${{ always() && steps.outcome == 'success' }}
+      if: ${{ always() && steps.login_azure.outcome == 'success' }}
       continue-on-error: true
       run: az logout
 
   deploy:
     name: Deploy
     runs-on: windows-latest
-    needs: [build, update_database]
+    needs: [build_and_update_database]
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
