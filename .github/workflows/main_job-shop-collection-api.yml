@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_update_database:
-    name: Build and Update Database
+  build:
+    name: Build
     runs-on: windows-latest
 
     steps:
@@ -37,7 +37,14 @@ jobs:
       with:
         name: .net-app
         path: ${{env.DOTNET_ROOT}}/myapp
-
+        
+  update_database:
+    name: Update Database
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
     - name: Login to Azure
       uses: Azure/login@v1
       with:
@@ -46,14 +53,17 @@ jobs:
     - name: dotnet ef database update
       run: |
         dotnet tool install --global dotnet-ef
-        dotnet ef database update --configuration Release --no-build -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+        dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api --connection ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
 
     - name: Logout of Azure
+      if: always() && steps.outcome == success
+      continue-on-error: true
       run: az logout
 
   deploy:
+    name: Deploy
     runs-on: windows-latest
-    needs: build_and_update_database
+    needs: [build, update_database]
     environment:
       name: 'production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
