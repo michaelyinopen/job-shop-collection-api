@@ -69,7 +69,13 @@ These 3 steps runs sequentially and will not run of a previous step failed. Ther
 
 Database update of each deployment should be backwards compatible, otherwise there should be a downtime to ensure the database and API are both updated. 
 
-I created a manually-triggered Github Actions workflow to migrate the database to a specific migration.
+I created a manually-triggered Github Actions workflow to revert the database to a specific migration.
+
+<details>
+    <summary>Revert Database Migrations</summary>
+    Should first run the workflow that has <code>Update-Database {target-migration}</code>, so that the <code>Down()</code> part of the migrations are executed. Then remove the migration in the next commit.<br>
+    Another option is not revert the migration, and add a new migration that does the inverse.
+</details>
 
 #### Generate azure credential for github actions secret
 The Azure SQL server and database's firewall is open to public, so a service principal is not needed, and do not need to login to Azure. However if one is needed, here is the command to create the service principal.
