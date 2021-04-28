@@ -22,10 +22,10 @@ jobs:
       run: dotnet restore --source https://api.nuget.org/v3/index.json
       
     - name: Build with dotnet
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release
 
     - name: Publish with dotnet
-      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile
+      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
