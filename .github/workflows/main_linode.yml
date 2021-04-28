@@ -22,13 +22,13 @@ jobs:
         dotnet-version: '3.1.301'
 
     - name: Install dependencies
-      run: dotnet restore --source https://api.nuget.org/v3/index.json --runtime linux-x64
+      run: dotnet restore --source https://api.nuget.org/v3/index.json --runtime ubuntu.20.04-x64
       
     - name: Build with dotnet
-      run: dotnet build --configuration Release --no-restore --runtime linux-x64
+      run: dotnet build --configuration Release --no-restore --runtime ubuntu.20.04-x64
 
     - name: Publish with dotnet
-      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile --runtime linux-x64 --no-self-contained
+      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile --runtime ubuntu.20.04-x64 --no-self-contained
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
