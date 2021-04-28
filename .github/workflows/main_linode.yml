@@ -28,7 +28,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore --runtime linux-x64
 
     - name: Publish with dotnet
-      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile --runtime linux-x64
+      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile --runtime linux-x64 --no-self-contained
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
