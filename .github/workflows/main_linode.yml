@@ -22,7 +22,7 @@ jobs:
         dotnet-version: '3.1.301'
 
     - name: Install dependencies
-      run: dotnet restore --source https://api.nuget.org/v3/index.json --runtime ubuntu.20.04-x64
+      run: dotnet restore --source https://api.nuget.org/v3/index.json
       
     - name: Build with dotnet
       run: dotnet build --configuration Release --no-restore --runtime ubuntu.20.04-x64
