@@ -28,7 +28,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish with dotnet
-      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish -c Release --no-build -o ${{env.DOTNET_ROOT}}/myapp /p:PublishProfile=FolderProfile
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
@@ -44,25 +44,26 @@ jobs:
         $Env:ConnectionStrings__JobShopCollectionConnectionString = "${{ secrets.LINODE_SQL_CONNECTION_STRING }}"
         dotnet ef database update --configuration Release -p job-shop-collection-api.Data -s job-shop-collection-api
 
-#  deploy:
-#    name: Deploy
-#    runs-on: windows-latest
-#    needs: [build_and_update_database]
-#    environment:
-#      name: 'production'
-#      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-#
-#    steps:
-#    - name: Download artifact from build job
-#      uses: actions/download-artifact@v2
-#      with:
-#        name: .net-app
-#
-#    - name: Deploy to Azure Web App
-#      id: deploy-to-webapp
-#      uses: azure/webapps-deploy@v2
-#      with:
-#        app-name: 'job-shop-collection-api'
-#        slot-name: 'production'
-#        publish-profile: ${{ secrets.AzureAppService_PublishProfile_574958f0102a4774a2695bd61d4bf111 }}
-#        package: .
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [build_and_update_database]
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v2
+      with:
+        name: .net-app
+
+    - name: Upload
+      env:
+        remote_host: ${{ secrets.LINODE_HOST }}
+        remote_port: ${{ secrets.LINODE_PORT }}
+        remote_user: ${{ secrets.LINODE_USER }}
+        remote_key: ${{ secrets.LINODE_SSH_PRIVATE_KEY }}
+        local_dir: "."
+        remote_dir: ${{secrets.LINODE_DIRECTORY}}
+      run: |
+        mkdir ~/.ssh
+        echo "$remote_key" > ~/.ssh/gh_actions_key
+        chmod 600 ~/.ssh/gh_actions_key
+        rsync -avzr --delete -e "ssh -p ${remote_port} -i ~/.ssh/gh_actions_key -o StrictHostKeyChecking=no" ${local_dir} ${remote_user}@${remote_host}:${remote_dir}
