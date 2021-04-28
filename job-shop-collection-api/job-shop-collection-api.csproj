@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RuntimeFrameworkVersion>3.1.4</RuntimeFrameworkVersion>
-    <RuntimeIdentifiers>win-x64;ubuntu.20.04-x64</RuntimeIdentifiers>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RootNamespace>job_shop_collection_api</RootNamespace>
     <Nullable>enable</Nullable>
     <UserSecretsId>93eb0e62-fe34-4433-85f4-538d56944737</UserSecretsId>
