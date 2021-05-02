@@ -65,9 +65,10 @@ You can check the deployment log on Azure portal or on Github.
 1. Build
 2. Update Azure SQL Database
 3. Deploy Azure App Service
-These 3 steps runs sequentially and will not run of a previous step failed. Therefore it is possible to have the database updated but API not deployed.
 
-Database update of each deployment should be backwards compatible, otherwise there should be a downtime to ensure the database and API are both updated. 
+These 3 steps runs sequentially and will not run if a previous step failed. Therefore it is possible to have the database updated but API not deployed.
+
+Database update of each deployment should be backwards compatible, otherwise there should be downtime to ensure the database and API are both updated. 
 
 I created a manually-triggered Github Actions workflow to revert the database to a specific migration.
 
