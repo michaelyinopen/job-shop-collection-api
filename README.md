@@ -86,3 +86,74 @@ az ad sp create-for-rbac --sdk-auth --name "job-shop-collection-database-publish
 ```
 Save the output json as `AZURE_CREDENTIALS_DATABASE_PUBLISHER` in Github repository secrets.
 
+## Hosted on Linode
+
+### SSL certificate for https from reverse proxy to api server
+
+
+
+### Https
+The website uses free SSL certificate issurd by Let's Encrypt.\
+Follow instructions in https://certbot.eff.org/lets-encrypt/debianbuster-nginx.
+
+```
+sudo apt install snapd
+sudo snap install core; sudo snap refresh core
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
+```
+/etc/nginx/sites-available/job-shop-collection.michael-yin.net will be updated with blocks managed by Certbot.
+
+### Linodes Diagram for Current Setup
+// move to api's readme
+
+<details>
+<Summary>Alternative Setup (Not in use)</summary>
+To have HTTPS between web and api, we could add a Nginx reverse proxy in front of the Api application, so that it is easy to configure SSL certificates in Nginx configurations.
+
+Using Nginx would be easier than configuring the certificates in the application, and keep the Api application's Kestrel Server as the public facing Edge Server.
+
+### SSL certificate for https from reverse proxy to api server
+1. generate rootCA.key
+```
+openssl genrsa -out rootCA.key 4096
+```
+
+2. generate rootCA.crt
+```
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 36500 -out rootCA.crt
+```
+
+3. generate webproxy.key
+```
+openssl genrsa -out webproxy.key 2048
+```
+
+4. generate webproxy.csr
+```
+openssl req -new -key webproxy.key -out webproxy.csr
+```
+with `job-shop-collection.michael-yin.net` as Common Name
+
+5. generate webproxy.crt
+```
+openssl x509 -req -in webproxy.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out webproxy.crt -days 36500 -sha256
+```
+
+6. generate api.key
+```
+openssl genrsa -out api.key 2048
+```
+
+7. generate api.csr
+```
+openssl req -new -key api.key -out api.csr
+```
+with `job-shop-collection.michael-yin.net` as Common Name
+
+8. generate api.crt
+```
+openssl x509 -req -in api.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out api.crt -days 36500 -sha256
+```
+</details>
