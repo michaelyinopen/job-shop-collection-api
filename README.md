@@ -92,7 +92,7 @@ The solution `job-shop-collection-api.sln` is hosted with on a Linode job-shop-c
 
 The database is hosted with SQL Server 2019 Express Edition on a Linode job-shop-collection-database.
 
-!(Current Linode setup)[JobShopCollection_Linodes_Current_Setup.svg]
+![Current Linode setup](JobShopCollection_Linodes_Current_Setup.svg)
 
 <details>
 <Summary>Alternative Setup (Not in use)</summary>
@@ -100,7 +100,7 @@ To have HTTPS between web and api, we could add a Nginx reverse proxy in front o
 
 Using Nginx would be easier than configuring the certificates in the application, and keep the Api application's Kestrel Server as the public facing Edge Server.
 
-!(Alternative Linode setup)[JobShopCollection_Linodes_Alternative_Setup.svg]
+![Alternative Linode setup](JobShopCollection_Linodes_Alternative_Setup.svg)
 
 ### SSL certificate for https from reverse proxy to api server
 1. generate rootCA.key
@@ -147,13 +147,13 @@ openssl x509 -req -in api.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -
 </details>
 
 ### Setup job-shop-collection-database Linode
-- https://www.linode.com/docs/guides/getting-started/\
-Skip hostname and host file
+- https://www.linode.com/docs/guides/getting-started/
+    - Skip hostname and host file
 - https://www.linode.com/docs/guides/securing-your-server/
-- https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver15\
-Follow through and install SQL Server 2019, choose express edition when asked
+- https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver15
+    - Follow through and install SQL Server 2019, choose express edition when asked
 - https://stackoverflow.com/questions/1601186/sql-server-script-to-create-a-new-user\
-Add user
+    - Add user
 
 Some commnads
 ```
