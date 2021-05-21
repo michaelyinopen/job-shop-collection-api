@@ -92,7 +92,7 @@ The solution `job-shop-collection-api.sln` is hosted with on a Linode job-shop-c
 
 The database is hosted with SQL Server 2019 Express Edition on a Linode job-shop-collection-database.
 
-!(Current Linode setup)[JobShopCollection Linodes - Current Setup.svg]
+!(Current Linode setup)[JobShopCollection_Linodes_Current_Setup.svg]
 
 <details>
 <Summary>Alternative Setup (Not in use)</summary>
@@ -100,7 +100,7 @@ To have HTTPS between web and api, we could add a Nginx reverse proxy in front o
 
 Using Nginx would be easier than configuring the certificates in the application, and keep the Api application's Kestrel Server as the public facing Edge Server.
 
-!(Alternative Linode setup)[JobShopCollection Linodes - Alternative Setup.svg]
+!(Alternative Linode setup)[JobShopCollection_Linodes_Alternative_Setup.svg]
 
 ### SSL certificate for https from reverse proxy to api server
 1. generate rootCA.key
@@ -175,5 +175,8 @@ The connection string is
 ```
 Data Source=tcp:192.53.169.244,1433;Initial Catalog=job-shop-collection;Persist Security Info=False;User ID=jobshopadmin;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;
 ```
+
+#### Update database
+The database can be updated with the connection string. New migrations committed are continuously deployed in the Github Action that od Linode job-shop-collection-api, more detail in 
 
 ### Setup job-shop-collection-api Linode
