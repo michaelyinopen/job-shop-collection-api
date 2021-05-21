@@ -35,6 +35,7 @@ The connection string for API to connect to database is stored in Settings | Con
 CORS is setup to allow `job-shop-collection-web`'s React app (hosted in a different origin) to make requests to the api.
 - The static website primary endpoint and
 - CDN endpoint
+- azure.job-shop-collection.michael-yin.net
 
 are added as allowed Origins 
 
@@ -55,7 +56,7 @@ Publish the project in Visual Studio, logged into Azure account.
 
 ### Continuous Deployment by Github Actions
 
-Continuous deployment is setup using Azure App Service job-shop-collection-api's Deployment center. It adds the publish profile to Github repository secret, and adds a Githib Actions workflow. The workflow yml file was modified to add an update database step.
+Continuous deployment is setup using Azure App Service job-shop-collection-api's Deployment center. It adds the publish profile to Github repository secret, and adds a Github Actions workflow. The workflow yml file was modified to add an update database step.
 
 Added the connection string to Github repository secret, for updating database during deployment.
 
@@ -68,7 +69,7 @@ You can check the deployment log on Azure portal or on Github.
 
 These 3 steps runs sequentially and will not run if a previous step failed. Therefore it is possible to have the database updated but API not deployed.
 
-Database update of each deployment should be backwards compatible, otherwise there should be downtime to ensure the database and API are both updated. 
+Database update of each deployment should be backwards compatible, otherwise there should be a downtime to ensure the database and API are both updated. 
 
 I created a manually-triggered Github Actions workflow to revert the database to a specific migration.
 
@@ -92,21 +93,8 @@ Save the output json as `AZURE_CREDENTIALS_DATABASE_PUBLISHER` in Github reposit
 
 
 
-### Https
-The website uses free SSL certificate issurd by Let's Encrypt.\
-Follow instructions in https://certbot.eff.org/lets-encrypt/debianbuster-nginx.
-
-```
-sudo apt install snapd
-sudo snap install core; sudo snap refresh core
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-sudo certbot --nginx
-```
-/etc/nginx/sites-available/job-shop-collection.michael-yin.net will be updated with blocks managed by Certbot.
-
 ### Linodes Diagram for Current Setup
-// move to api's readme
+// diagram
 
 <details>
 <Summary>Alternative Setup (Not in use)</summary>
