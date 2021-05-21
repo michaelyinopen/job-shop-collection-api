@@ -1,5 +1,5 @@
 # job-shop-collection-api
-API of the Job Shop Collection website.
+API of the [Job Shop Collection website](https://job-shop-collection.michael-yin.net).
 
 ## How to run locally
 1. Clone repo
@@ -88,19 +88,19 @@ az ad sp create-for-rbac --sdk-auth --name "job-shop-collection-database-publish
 Save the output json as `AZURE_CREDENTIALS_DATABASE_PUBLISHER` in Github repository secrets.
 
 ## Hosted on Linode
+The solution `job-shop-collection-api.sln` is hosted with on a Linode job-shop-collection-api.
 
-### SSL certificate for https from reverse proxy to api server
+The database is hosted with SQL Server 2019 Express Edition on a Linode job-shop-collection-database.
 
-
-
-### Linodes Diagram for Current Setup
-// diagram
+!(Current Linode setup)[JobShopCollection Linodes - Current Setup.svg]
 
 <details>
 <Summary>Alternative Setup (Not in use)</summary>
 To have HTTPS between web and api, we could add a Nginx reverse proxy in front of the Api application, so that it is easy to configure SSL certificates in Nginx configurations.
 
 Using Nginx would be easier than configuring the certificates in the application, and keep the Api application's Kestrel Server as the public facing Edge Server.
+
+!(Alternative Linode setup)[JobShopCollection Linodes - Alternative Setup.svg]
 
 ### SSL certificate for https from reverse proxy to api server
 1. generate rootCA.key
@@ -145,3 +145,35 @@ with `job-shop-collection.michael-yin.net` as Common Name
 openssl x509 -req -in api.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out api.crt -days 36500 -sha256
 ```
 </details>
+
+### Setup job-shop-collection-database Linode
+- https://www.linode.com/docs/guides/getting-started/\
+Skip hostname and host file
+- https://www.linode.com/docs/guides/securing-your-server/
+- https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver15\
+Follow through and install SQL Server 2019, choose express edition when asked
+- https://stackoverflow.com/questions/1601186/sql-server-script-to-create-a-new-user\
+Add user
+
+Some commnads
+```
+// check status
+systemctl status mssql-server --no-pager
+
+// allow port in firewall
+sudo ufw allow 1433
+
+// check the network connection
+nc -zv YOUR_SERVER_NAME_OR_IP 1433
+
+// enter sql command mode for that user, and specify to use job-shop-collection database
+sqlcmd -S . -U SA -P '<YourPassword>'
+use [job-shop-collection]
+```
+
+The connection string is
+```
+Data Source=tcp:192.53.169.244,1433;Initial Catalog=job-shop-collection;Persist Security Info=False;User ID=jobshopadmin;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;
+```
+
+### Setup job-shop-collection-api Linode
