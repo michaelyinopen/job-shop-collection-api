@@ -177,6 +177,6 @@ Data Source=tcp:192.53.169.244,1433;Initial Catalog=job-shop-collection;Persist 
 ```
 
 #### Update database
-The database can be updated with the connection string. New migrations committed are continuously deployed in the Github Action that od Linode job-shop-collection-api, more detail in 
+The database is updated with the connection string. New migrations committed are continuously deployed in the Github Action of Linode job-shop-collection-api.
 
 ### Setup job-shop-collection-api Linode
