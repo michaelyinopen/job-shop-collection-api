@@ -182,7 +182,7 @@ The database is updated using the connection string. New migrations committed ar
 ### Setup job-shop-collection-api Linode
 - https://www.linode.com/docs/guides/getting-started/
     - Hostname job-shop-collection-api
-    - in hosts file, associate the publis ip addresses with the domain name job-shop-collection.michael-yin.net
+    - in hosts file, associate the public ip addresses with the domain name job-shop-collection.michael-yin.net
 - https://www.linode.com/docs/guides/securing-your-server/
 
 In the the current setup, job-shop-collection-api does not have a reverse proxy in front of the ASP.NET Web Api Kestrel server.
