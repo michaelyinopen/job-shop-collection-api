@@ -27,7 +27,7 @@ namespace job_shop_collection_api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<JobSetHeadersDto>> GetAll([FromQuery] JobSetsQuery jobSetsQuery)
+        public async Task<ActionResult<JobSetsResponse>> GetAll([FromQuery] JobSetsQuery jobSetsQuery)
         {
             IQueryable<JobSet> dataQuery = JobShopCollectionDbContext.JobSet;
 
@@ -43,7 +43,7 @@ namespace job_shop_collection_api.Controllers
                 .ToListAsync();
 
             int? nextPageToken = data.Count == jobSetsQuery.Limit ? data[^1].Id : default(int?);
-            return new JobSetHeadersDto
+            return new JobSetsResponse
             {
                 Data = data,
                 NextPageToken = nextPageToken
@@ -51,84 +51,107 @@ namespace job_shop_collection_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<JobSetDto>> Get(int id)
+        public async Task<ActionResult<GetJobSetResponse>> Get(int id)
         {
             var result = await JobShopCollectionDbContext.JobSet
                 .ProjectTo<JobSetDto>(Mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(j => j.Id == id);
 
-            if (result is null)
-                return NotFound();
-
-            string? eTag = result.GetETag();
-            if (eTag != null)
-            {
-                if (HttpContext.Request.Headers.Keys.Contains("If-None-Match") && HttpContext.Request.Headers["If-None-Match"].ToString() == eTag)
+            return result is null
+                ? new GetJobSetResponse
                 {
-                    return new StatusCodeResult(304);//Not Modified
+                    Status = GetJobSetResponseStatus.NotFound
                 }
-                HttpContext.Response.Headers.Add("ETag", new[] { eTag });
-            }
-
-            return result;
+                : new GetJobSetResponse
+                {
+                    Status = GetJobSetResponseStatus.Ok,
+                    Data = result
+                };
         }
 
         [HttpPost]
-        public async Task<ActionResult<JobSetDto>> Post([FromBody] NewJobSetDto newJobSetDto)
+        public async Task<ActionResult<JobSetDto>> Post([FromBody] NewJobSetRequest newJobSetRequest)
         {
-            var jobSet = Mapper.Map<JobSet>(newJobSetDto);
+            var jobSet = Mapper.Map<JobSet>(newJobSetRequest);
             JobShopCollectionDbContext.JobSet.Add(jobSet);
             await JobShopCollectionDbContext.SaveChangesAsync();
 
             var result = Mapper.Map<JobSetDto>(jobSet);
-            string? eTag = jobSet.GetETag();
-            if (eTag != null)
-            {
-                HttpContext.Response.Headers.Add("ETag", new[] { eTag });
-            }
             return CreatedAtAction("Get", new { id = jobSet.Id }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<JobSetDto>> Put(int id, [FromBody] UpdateJobSetDto updateJobSetDto)
+        public async Task<ActionResult<UpdateJobSetResponse>> Put(int id, [FromBody] UpdateJobSetRequest updateJobSetRequest)
         {
-            if (!id.Equals(updateJobSetDto.Id))
+            if (!id.Equals(updateJobSetRequest.Id))
                 return BadRequest(new { Message = "The Id in route does not equal to the Id in Body." });
 
-            var newJobSet = Mapper.Map<JobSet>(updateJobSetDto);
+            var newJobSet = Mapper.Map<JobSet>(updateJobSetRequest);
 
-            var current = await JobShopCollectionDbContext.JobSet
+            var savedJobSet = await JobShopCollectionDbContext.JobSet
                 .FirstOrDefaultAsync(j => j.Id == id);
 
-            if (current is null)
-                return NotFound();
-            if (current.IsLocked)
+            if (savedJobSet is null)
             {
-                return new StatusCodeResult((int)StatusCodes.Status403Forbidden);
+                return new UpdateJobSetResponse
+                {
+                    Status = UpdateJobSetResponseStatus.NotFound
+                };
+            }
+            if (savedJobSet.IsLocked)
+            {
+                return new UpdateJobSetResponse
+                {
+                    Status = UpdateJobSetResponseStatus.ForbiddenSinceLocked
+                };
             }
 
-            // the "If-Match" Header is mandatory
-            if (!HttpContext.Request.Headers.Keys.Contains("If-Match"))
+            JobSetDto savedJobSetDto = Mapper.Map<JobSetDto>(savedJobSet);
+
+            string? savedVersionToken = VersionTokenHelper.GetVersionToken(savedJobSet); // copied
+            if (savedVersionToken != null && updateJobSetRequest.VersionToken != savedVersionToken)
             {
-                return new StatusCodeResult(StatusCodes.Status412PreconditionFailed);
+                return new UpdateJobSetResponse
+                {
+                    Status = UpdateJobSetResponseStatus.VersionConditionFailed,
+                    SavedJobSet = savedJobSetDto
+                };
+            }
+            try
+            {
+                JobShopCollectionDbContext.Entry(savedJobSet).CurrentValues.SetValues(newJobSet);
+                savedJobSet.RowVersion = VersionTokenHelper.ConvertToRowVersion(updateJobSetRequest.VersionToken!);
+                await JobShopCollectionDbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (ex.Entries.Count == 1 && ex.Entries.Single().Entity is JobSet)
+                {
+                    var databaseValues = ex.Entries.Single().GetDatabaseValues();
+                    JobShopCollectionDbContext.Entry(savedJobSet).CurrentValues.SetValues(databaseValues);
+                    JobSetDto databaseJobSetDto = Mapper.Map<JobSetDto>(savedJobSet);
+                    return new UpdateJobSetResponse
+                    {
+                        Status = UpdateJobSetResponseStatus.VersionConditionFailed,
+                        SavedJobSet = databaseJobSetDto
+                    };
+                }
+                else
+                {
+                    return new UpdateJobSetResponse
+                    {
+                        Status = UpdateJobSetResponseStatus.VersionConditionFailed,
+                        SavedJobSet = savedJobSetDto
+                    };
+                }
             }
 
-            string? currentETag = current.GetETag();
-            if (currentETag != null && HttpContext.Request.Headers["If-Match"].ToString() != currentETag)
+            JobSetDto updatedJobSetDto = Mapper.Map<JobSetDto>(savedJobSet);
+            return new UpdateJobSetResponse
             {
-                return new StatusCodeResult(StatusCodes.Status412PreconditionFailed);
-            }
-
-            JobShopCollectionDbContext.Entry(current).CurrentValues.SetValues(newJobSet);
-            await JobShopCollectionDbContext.SaveChangesAsync();
-
-            JobSetDto jobSetDto = Mapper.Map<JobSetDto>(current);
-            string? eTag = jobSetDto.GetETag();
-            if (eTag != null)
-            {
-                HttpContext.Response.Headers.Add("ETag", new[] { eTag });
-            }
-            return Ok(jobSetDto);
+                Status = UpdateJobSetResponseStatus.Done,
+                UpdatedJobSet = updatedJobSetDto
+            };
         }
 
         [HttpDelete("{id}")]
@@ -143,20 +166,33 @@ namespace job_shop_collection_api.Controllers
             {
                 return new StatusCodeResult((int)StatusCodes.Status403Forbidden);
             }
-
-            // the "If-Match" Header is mandatory
-            if (!HttpContext.Request.Headers.Keys.Contains("If-Match"))
-            {
-                return new StatusCodeResult(StatusCodes.Status412PreconditionFailed);
-            }
-
-            string? originalETag = original.GetETag();
-            if (originalETag != null && HttpContext.Request.Headers["If-Match"].ToString() != originalETag)
-            {
-                return new StatusCodeResult(StatusCodes.Status412PreconditionFailed);
-            }
-
             JobShopCollectionDbContext.Entry(original).State = EntityState.Deleted;
+            await JobShopCollectionDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("{id}/lock")]
+        public async Task<IActionResult> Lock(int id)
+        {
+            var jobSet = await JobShopCollectionDbContext.JobSet
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (jobSet is null)
+                return NotFound();
+            jobSet.IsLocked = true;
+            await JobShopCollectionDbContext.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("{id}/unlock")]
+        public async Task<IActionResult> Unlock(int id)
+        {
+            var jobSet = await JobShopCollectionDbContext.JobSet
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (jobSet is null)
+                return NotFound();
+            jobSet.IsLocked = false;
             await JobShopCollectionDbContext.SaveChangesAsync();
             return Ok();
         }
