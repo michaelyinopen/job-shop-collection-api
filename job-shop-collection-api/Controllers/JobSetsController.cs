@@ -102,7 +102,7 @@ namespace job_shop_collection_api.Controllers
             {
                 return new UpdateJobSetResponse
                 {
-                    Status = UpdateJobSetResponseStatus.ForbiddenSinceLocked
+                    Status = UpdateJobSetResponseStatus.ForbiddenBeacuseLocked
                 };
             }
 

@@ -122,8 +122,8 @@ namespace job_shop_collection_api.Dtos
         [EnumMember(Value = "version condition failed")]
         VersionConditionFailed,
 
-        [EnumMember(Value = "forbidden since locked")]
-        ForbiddenSinceLocked,
+        [EnumMember(Value = "forbidden because locked")]
+        ForbiddenBeacuseLocked,
 
         [EnumMember(Value = "done")]
         Done,
