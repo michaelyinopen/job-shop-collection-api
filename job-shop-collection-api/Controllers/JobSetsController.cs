@@ -91,6 +91,9 @@ namespace job_shop_collection_api.Controllers
             var savedJobSet = await JobShopCollectionDbContext.JobSet
                 .FirstOrDefaultAsync(j => j.Id == id);
 
+            JobSetDto savedJobSetDto = Mapper.Map<JobSetDto>(savedJobSet);
+            string? savedVersionToken = VersionTokenHelper.GetVersionToken(savedJobSet); // copied
+
             if (savedJobSet is null)
             {
                 return new UpdateJobSetResponse
@@ -102,13 +105,10 @@ namespace job_shop_collection_api.Controllers
             {
                 return new UpdateJobSetResponse
                 {
-                    Status = UpdateJobSetResponseStatus.ForbiddenBeacuseLocked
+                    Status = UpdateJobSetResponseStatus.ForbiddenBeacuseLocked,
+                    SavedJobSet = savedJobSetDto
                 };
             }
-
-            JobSetDto savedJobSetDto = Mapper.Map<JobSetDto>(savedJobSet);
-
-            string? savedVersionToken = VersionTokenHelper.GetVersionToken(savedJobSet); // copied
             if (savedVersionToken != null && updateJobSetRequest.VersionToken != savedVersionToken)
             {
                 return new UpdateJobSetResponse
