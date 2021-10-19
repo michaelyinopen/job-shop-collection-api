@@ -77,7 +77,7 @@ namespace job_shop_collection_api.Controllers
             await JobShopCollectionDbContext.SaveChangesAsync();
 
             var result = Mapper.Map<JobSetDto>(jobSet);
-            return CreatedAtAction("Get", new { id = jobSet.Id }, result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
