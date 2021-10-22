@@ -9,8 +9,8 @@ namespace job_shop_collection_api.Dtos
         {
             CreateMap<JobSet, JobSetHeaderDto>();
             CreateMap<JobSet, JobSetDto>();
-            CreateMap<NewJobSetDto, JobSet>();
-            CreateMap<UpdateJobSetDto, JobSet>();
+            CreateMap<NewJobSetRequest, JobSet>();
+            CreateMap<UpdateJobSetRequest, JobSet>();
         }
     }
 }
